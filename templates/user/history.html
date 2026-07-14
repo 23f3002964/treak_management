@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+
+{% block title %}My Booking History - TrekOut{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h1 class="font-outfit text-dark mb-1">My Bookings & History</h1>
+        <p class="text-muted small mb-0">Track active reservations, view guide details, or review historical hiking logs.</p>
+    </div>
+</div>
+
+<!-- Bookings List -->
+<div class="card glass-panel border-0 p-4">
+    {% if bookings %}
+        <div class="table-responsive">
+            <table class="table custom-table mb-0">
+                <thead>
+                    <tr>
+                        <th>Booking ID</th>
+                        <th>Trek Name & Location</th>
+                        <th>Start & End Date</th>
+                        <th>Guide Contact</th>
+                        <th>Booking Date</th>
+                        <th>Status</th>
+                        <th class="text-end">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for booking in bookings %}
+                        <tr>
+                            <td>#{{ booking.id }}</td>
+                            <td>
+                                <div class="fw-bold text-dark">{{ booking.trek.name }}</div>
+                                <div class="text-muted small"><i class="fa-solid fa-location-dot me-1"></i>{{ booking.trek.location }} • Difficulty: {{ booking.trek.difficulty }}</div>
+                            </td>
+                            <td>
+                                <div class="small fw-semibold">{{ booking.trek.start_date.strftime('%Y-%m-%d') }} to {{ booking.trek.end_date.strftime('%Y-%m-%d') }}</div>
+                                <div class="text-muted small">{{ booking.trek.duration }} Days</div>
+                            </td>
+                            <td>
+                                {% if booking.trek.assigned_staff %}
+                                    <div class="small fw-semibold">{{ booking.trek.assigned_staff.name }}</div>
+                                    <div class="text-muted small">{{ booking.trek.assigned_staff.contact_details }}</div>
+                                {% else %}
+                                    <span class="text-muted small italic">Guide not assigned</span>
+                                {% endif %}
+                            </td>
+                            <td class="text-muted small">
+                                {{ booking.booking_date.strftime('%Y-%m-%d') if booking.booking_date else 'N/A' }}
+                            </td>
+                            <td>
+                                <span class="badge {% if booking.status == 'Booked' %}badge-status-open{% elif booking.status == 'Cancelled' %}badge-status-cancelled{% else %}badge-status-completed{% endif %} text-uppercase text-xs" style="font-size: 0.7rem;">
+                                    {{ booking.status }}
+                                </span>
+                            </td>
+                            <td class="text-end">
+                                <!-- Cancellation Action -->
+                                {% if booking.status == 'Booked' and booking.trek.start_date > now.date() %}
+                                    <form action="{{ url_for('main.cancel_booking', booking_id=booking.id) }}" method="POST" onsubmit="return confirm('Are you sure you want to cancel this booking? This slot will be released.');">
+                                        <button type="submit" class="btn btn-outline-danger btn-sm"><i class="fa-solid fa-rectangle-xmark me-1"></i> Cancel Booking</button>
+                                    </form>
+                                {% else %}
+                                    <span class="text-muted small">-</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% else %}
+        <div class="text-center py-5 text-muted">
+            <i class="fa-solid fa-ticket-simple fs-1 mb-3 text-muted-50"></i>
+            <h4 class="font-outfit fw-bold text-dark">No Bookings Found</h4>
+            <p class="text-muted mb-0 small">You haven't booked any treks yet. Head over to "Find Treks" to get started!</p>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

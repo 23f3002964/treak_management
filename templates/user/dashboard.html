@@ -1,0 +1,109 @@
+{% extends "base.html" %}
+
+{% block title %}Explore Treks - TrekOut{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h1 class="font-outfit text-dark mb-1">Find Your Next Trek</h1>
+        <p class="text-muted small mb-0">Browse through available high-quality treks and book your slots instantly.</p>
+    </div>
+</div>
+
+<!-- Search and Filter Panel -->
+<div class="card glass-panel border-0 p-4 mb-4">
+    <form action="{{ url_for('main.trekker_dashboard') }}" method="GET" class="row g-3">
+        <div class="col-md-5">
+            <label for="search" class="form-label small fw-semibold text-dark">Search by Trek Name</label>
+            <div class="input-group">
+                <span class="input-group-text bg-white text-muted"><i class="fa-solid fa-magnifying-glass"></i></span>
+                <input type="text" class="form-control" id="search" name="search" placeholder="e.g. Himalayan" value="{{ search }}">
+            </div>
+        </div>
+        <div class="col-md-3">
+            <label for="location" class="form-label small fw-semibold text-dark">Location</label>
+            <div class="input-group">
+                <span class="input-group-text bg-white text-muted"><i class="fa-solid fa-location-dot"></i></span>
+                <input type="text" class="form-control" id="location" name="location" placeholder="e.g. Colorado" value="{{ location }}">
+            </div>
+        </div>
+        <div class="col-md-3">
+            <label for="difficulty" class="form-label small fw-semibold text-dark">Difficulty</label>
+            <select class="form-select" id="difficulty" name="difficulty">
+                <option value="">All Difficulties</option>
+                <option value="Easy" {% if difficulty == 'Easy' %}selected{% endif %}>Easy</option>
+                <option value="Moderate" {% if difficulty == 'Moderate' %}selected{% endif %}>Moderate</option>
+                <option value="Hard" {% if difficulty == 'Hard' %}selected{% endif %}>Hard</option>
+            </select>
+        </div>
+        <div class="col-md-1 d-flex align-items-end">
+            <button type="submit" class="btn btn-primary w-100">Search</button>
+        </div>
+    </form>
+</div>
+
+<!-- Treks Cards -->
+<div class="row">
+    {% if treks %}
+        {% for trek in treks %}
+            <div class="col-md-4 mb-4">
+                <div class="card glass-panel border-0 hover-lift h-100 overflow-hidden d-flex flex-column">
+                    <!-- Top Gradient Header -->
+                    <div class="bg-dark text-white p-4 d-flex justify-content-between align-items-start" style="height: 120px; background: linear-gradient(135deg, var(--primary-color), var(--primary-hover));">
+                        <div>
+                            <h3 class="h5 font-outfit mb-1 text-truncate" style="max-width: 180px;">{{ trek.name }}</h3>
+                            <span class="small text-light-50"><i class="fa-solid fa-location-dot me-1"></i>{{ trek.location }}</span>
+                        </div>
+                        <span class="badge {% if trek.difficulty == 'Easy' %}badge-easy{% elif trek.difficulty == 'Moderate' %}badge-moderate{% else %}badge-hard{% endif %} px-2.5 py-1.5">
+                            {{ trek.difficulty }}
+                        </span>
+                    </div>
+                    
+                    <div class="card-body p-4 d-flex flex-column flex-grow-1">
+                        <p class="text-muted small flex-grow-1">{{ trek.description }}</p>
+                        
+                        <div class="row g-2 text-center my-3 bg-light rounded p-2">
+                            <div class="col-4 border-end">
+                                <span class="d-block text-muted text-xs text-uppercase" style="font-size: 0.6rem;">Duration</span>
+                                <strong class="text-dark small d-block mt-0.5">{{ trek.duration }} Days</strong>
+                            </div>
+                            <div class="col-4 border-end">
+                                <span class="d-block text-muted text-xs text-uppercase" style="font-size: 0.6rem;">Slots Left</span>
+                                <strong class="text-dark small d-block mt-0.5 {% if trek.available_slots == 0 %}text-danger{% else %}text-warning{% endif %}">
+                                    {{ trek.available_slots }} / {{ trek.total_slots }}
+                                </strong>
+                            </div>
+                            <div class="col-4">
+                                <span class="d-block text-muted text-xs text-uppercase" style="font-size: 0.6rem;">Cost</span>
+                                <strong class="text-success small d-block mt-0.5">₹{{ trek.price }}</strong>
+                            </div>
+                        </div>
+                        
+                        <div class="d-grid mt-auto">
+                            {% if trek.id in booked_trek_ids %}
+                                <button class="btn btn-secondary btn-sm" disabled><i class="fa-solid fa-calendar-check me-1"></i> Already Booked</button>
+                            {% elif trek.status != 'Open' %}
+                                <button class="btn btn-outline-secondary btn-sm" disabled><i class="fa-solid fa-lock me-1"></i> Coming Soon</button>
+                            {% elif trek.available_slots <= 0 %}
+                                <button class="btn btn-outline-danger btn-sm" disabled><i class="fa-solid fa-triangle-exclamation me-1"></i> Fully Booked</button>
+                            {% else %}
+                                <form action="{{ url_for('main.book_trek', trek_id=trek.id) }}" method="POST" class="d-grid">
+                                    <button type="submit" class="btn btn-warning btn-sm fw-semibold"><i class="fa-solid fa-ticket me-1"></i> Reserve Slot</button>
+                                </form>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    {% else %}
+        <div class="col-12">
+            <div class="alert alert-info text-center py-5 rounded-4 shadow-sm">
+                <i class="fa-solid fa-mountain fs-2 text-primary mb-3"></i>
+                <h4 class="font-outfit fw-bold text-dark">No Treks Found</h4>
+                <p class="text-muted mb-0 small">No treks are matching your filters or open at this time.</p>
+            </div>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}
