@@ -1,0 +1,121 @@
+{% extends "base.html" %}
+
+{% block title %}Welcome to TrekOut - Professional Trekking Management{% endblock %}
+
+{% block content %}
+<div class="hero-section text-center shadow-lg mb-5">
+    <div class="container py-3">
+        <h1 class="display-3 font-outfit fw-bold mb-3">Explore the Great Outdoors</h1>
+        <p class="lead mb-4 text-light-50">Join professional trekking experiences guided by certified local guides.</p>
+        <div class="d-flex justify-content-center gap-3">
+            {% if session.get('user_id') %}
+                {% if session.get('role') == 'trekker' %}
+                    <a href="{{ url_for('main.trekker_dashboard') }}" class="btn btn-warning btn-lg px-4"><i class="fa-solid fa-compass"></i> Find Your Next Trek</a>
+                {% elif session.get('role') == 'staff' %}
+                    <a href="{{ url_for('main.staff_dashboard') }}" class="btn btn-warning btn-lg px-4"><i class="fa-solid fa-gauge"></i> Guide Dashboard</a>
+                {% else %}
+                    <a href="{{ url_for('main.admin_dashboard') }}" class="btn btn-warning btn-lg px-4"><i class="fa-solid fa-gauge-high"></i> Admin Dashboard</a>
+                {% endif %}
+            {% else %}
+                <a href="{{ url_for('main.register') }}" class="btn btn-warning btn-lg px-4 fw-semibold"><i class="fa-solid fa-user-plus"></i> Join as Trekker</a>
+                <a href="{{ url_for('main.login') }}" class="btn btn-outline-light btn-lg px-4"><i class="fa-solid fa-right-to-bracket"></i> Login</a>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<div class="row text-center mb-5">
+    <div class="col-md-4 mb-4">
+        <div class="glass-panel p-4 h-100">
+            <div class="text-warning mb-3">
+                <i class="fa-solid fa-route fs-1"></i>
+            </div>
+            <h3 class="font-outfit h4 mb-2">Tailored Trails</h3>
+            <p class="text-muted small mb-0">From easy valley trails to extreme high-altitude alpine passes, choose the difficulty that fits your experience.</p>
+        </div>
+    </div>
+    <div class="col-md-4 mb-4">
+        <div class="glass-panel p-4 h-100">
+            <div class="text-success mb-3">
+                <i class="fa-solid fa-person-hiking fs-1"></i>
+            </div>
+            <h3 class="font-outfit h4 mb-2">Expert Staff Guides</h3>
+            <p class="text-muted small mb-0">Every trek has an assigned guide approved by administrators to manage schedules and safety on the trail.</p>
+        </div>
+    </div>
+    <div class="col-md-4 mb-4">
+        <div class="glass-panel p-4 h-100">
+            <div class="text-primary mb-3">
+                <i class="fa-solid fa-clipboard-check fs-1"></i>
+            </div>
+            <h3 class="font-outfit h4 mb-2">Live Slot Tracking</h3>
+            <p class="text-muted small mb-0">Avoid overcrowding. Real-time slot reservation prevents overbooking and secures your place instantly.</p>
+        </div>
+    </div>
+</div>
+
+<!-- Open Treks Section -->
+<div class="mb-5">
+    <div class="d-flex justify-content-between align-items-end mb-4">
+        <div>
+            <h2 class="font-outfit text-dark mb-1">Featured Treks Open for Booking</h2>
+            <p class="text-muted small mb-0">Embark on our most popular trails before slots run out.</p>
+        </div>
+        <a href="{{ url_for('main.login') }}" class="btn btn-outline-primary btn-sm">View All Treks <i class="fa-solid fa-arrow-right"></i></a>
+    </div>
+
+    <div class="row">
+        {% if open_treks %}
+            {% for trek in open_treks %}
+                <div class="col-md-4 mb-4">
+                    <div class="card glass-panel h-100 border-0 hover-lift overflow-hidden">
+                        <div class="bg-dark text-white p-4 d-flex justify-content-between align-items-start" style="height: 120px; background: linear-gradient(135deg, var(--primary-color), var(--primary-hover));">
+                            <div>
+                                <h3 class="h5 font-outfit mb-1 text-truncate" style="max-width: 200px;">{{ trek.name }}</h3>
+                                <span class="small text-light-50"><i class="fa-solid fa-location-dot me-1"></i>{{ trek.location }}</span>
+                            </div>
+                            <span class="badge {% if trek.difficulty == 'Easy' %}badge-easy{% elif trek.difficulty == 'Moderate' %}badge-moderate{% else %}badge-hard{% endif %} py-2 px-3">
+                                {{ trek.difficulty }}
+                            </span>
+                        </div>
+                        <div class="card-body p-4 d-flex flex-column">
+                            <p class="card-text text-muted small flex-grow-1">{{ trek.description[:120] }}...</p>
+                            <hr class="text-muted my-3">
+                            <div class="row g-2 text-center mb-3">
+                                <div class="col-4 border-end">
+                                    <span class="d-block text-muted text-uppercase text-xs" style="font-size: 0.65rem;">Duration</span>
+                                    <strong class="text-dark small">{{ trek.duration }} Days</strong>
+                                </div>
+                                <div class="col-4 border-end">
+                                    <span class="d-block text-muted text-uppercase text-xs" style="font-size: 0.65rem;">Slots Left</span>
+                                    <strong class="text-dark small text-warning">{{ trek.available_slots }} / {{ trek.total_slots }}</strong>
+                                </div>
+                                <div class="col-4">
+                                    <span class="d-block text-muted text-uppercase text-xs" style="font-size: 0.65rem;">Price</span>
+                                    <strong class="text-success small">₹{{ trek.price }}</strong>
+                                </div>
+                            </div>
+                            <div class="d-grid mt-auto">
+                                {% if session.get('role') == 'trekker' %}
+                                    <form action="{{ url_for('main.book_trek', trek_id=trek.id) }}" methods="POST" class="d-grid">
+                                        <button type="submit" class="btn btn-primary btn-sm"><i class="fa-solid fa-calendar-check me-1"></i> Book Now</button>
+                                    </form>
+                                {% else %}
+                                    <a href="{{ url_for('main.login') }}" class="btn btn-outline-primary btn-sm"><i class="fa-solid fa-right-to-bracket me-1"></i> Login to Book</a>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        {% else %}
+            <div class="col-12">
+                <div class="alert alert-info text-center py-4 rounded-4 shadow-sm">
+                    <i class="fa-solid fa-mountain fs-3 text-primary mb-2"></i>
+                    <p class="mb-0">No treks are currently open for bookings. Please check back later!</p>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

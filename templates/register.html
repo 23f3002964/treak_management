@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+
+{% block title %}Register - TrekOut{% endblock %}
+
+{% block content %}
+<div class="auth-container" style="max-width: 500px;">
+    <div class="card glass-panel border-0 shadow-sm rounded-4 p-4 mt-4">
+        <div class="text-center mb-4">
+            <i class="fa-solid fa-user-plus text-warning fs-1 mb-2"></i>
+            <h2 class="font-outfit fw-bold mb-1">Create Account</h2>
+            <p class="text-muted small">Sign up to get started with TrekOut</p>
+        </div>
+
+        <form action="{{ url_for('main.register') }}" method="POST">
+            <div class="mb-3">
+                <label for="role" class="form-label small fw-semibold text-dark">Register As</label>
+                <div class="input-group">
+                    <span class="input-group-text bg-white border-end-0 text-muted"><i class="fa-solid fa-users-gear"></i></span>
+                    <select class="form-select border-start-0" id="role" name="role" required>
+                        <option value="trekker" selected>Trekker (Participant)</option>
+                        <option value="staff">Trek Staff (Guide/Organizer)</option>
+                    </select>
+                </div>
+                <div class="form-text text-xs" style="font-size: 0.75rem;">Note: Staff registration requires administrator approval.</div>
+            </div>
+
+            <div class="mb-3">
+                <label for="username" class="form-label small fw-semibold text-dark">Username</label>
+                <div class="input-group">
+                    <span class="input-group-text bg-white border-end-0 text-muted"><i class="fa-solid fa-user"></i></span>
+                    <input type="text" class="form-control border-start-0" id="username" name="username" placeholder="Choose a username" required>
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <label for="password" class="form-label small fw-semibold text-dark">Password</label>
+                <div class="input-group">
+                    <span class="input-group-text bg-white border-end-0 text-muted"><i class="fa-solid fa-lock"></i></span>
+                    <input type="password" class="form-control border-start-0" id="password" name="password" placeholder="Create a secure password" required autocomplete="new-password">
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <label for="name" class="form-label small fw-semibold text-dark">Full Name</label>
+                <div class="input-group">
+                    <span class="input-group-text bg-white border-end-0 text-muted"><i class="fa-solid fa-id-card"></i></span>
+                    <input type="text" class="form-control border-start-0" id="name" name="name" placeholder="Enter full name" required>
+                </div>
+            </div>
+
+            <div class="mb-4">
+                <label for="contact_details" class="form-label small fw-semibold text-dark">Contact Info</label>
+                <div class="input-group">
+                    <span class="input-group-text bg-white border-end-0 text-muted"><i class="fa-solid fa-envelope"></i></span>
+                    <input type="text" class="form-control border-start-0" id="contact_details" name="contact_details" placeholder="Email or phone number" required>
+                </div>
+            </div>
+
+            <div class="d-grid mb-3">
+                <button type="submit" class="btn btn-primary py-2 fw-semibold"><i class="fa-solid fa-user-plus me-1"></i> Register Account</button>
+            </div>
+        </form>
+
+        <div class="text-center mt-3">
+            <p class="text-muted small mb-0">Already registered? <a href="{{ url_for('main.login') }}" class="text-warning fw-semibold">Log in here</a></p>
+        </div>
+    </div>
+</div>
+{% endblock %}
