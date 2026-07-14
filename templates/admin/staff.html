@@ -1,0 +1,100 @@
+{% extends "base.html" %}
+
+{% block title %}Manage Staff - Admin - TrekOut{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h1 class="font-outfit text-dark mb-1">Manage Trek Staff Guides</h1>
+        <p class="text-muted small mb-0">Approve new guide registrations, view statuses, and handle guide blacklisting.</p>
+    </div>
+</div>
+
+<!-- Search and Filter -->
+<div class="card glass-panel border-0 p-4 mb-4">
+    <form action="{{ url_for('main.admin_staff') }}" method="GET" class="row g-3">
+        <div class="col-md-7">
+            <label for="search" class="form-label small fw-semibold text-dark">Search by Name, Username, or ID</label>
+            <div class="input-group">
+                <span class="input-group-text bg-white text-muted"><i class="fa-solid fa-magnifying-glass"></i></span>
+                <input type="text" class="form-control" id="search" name="search" placeholder="Search guides..." value="{{ search }}">
+            </div>
+        </div>
+        <div class="col-md-4">
+            <label for="status" class="form-label small fw-semibold text-dark">Status</label>
+            <select class="form-select" id="status" name="status">
+                <option value="">All Statuses</option>
+                <option value="pending" {% if status == 'pending' %}selected{% endif %}>Pending</option>
+                <option value="approved" {% if status == 'approved' %}selected{% endif %}>Approved</option>
+                <option value="blacklisted" {% if status == 'blacklisted' %}selected{% endif %}>Blacklisted</option>
+            </select>
+        </div>
+        <div class="col-md-1 d-flex align-items-end">
+            <button type="submit" class="btn btn-primary w-100">Filter</button>
+        </div>
+    </form>
+</div>
+
+<!-- Staff Table -->
+<div class="card glass-panel border-0 p-4">
+    {% if staff %}
+        <div class="table-responsive">
+            <table class="table custom-table mb-0">
+                <thead>
+                    <tr>
+                        <th>S.No.</th>
+                        <th>Name & Username</th>
+                        <th>Contact Details</th>
+                        <th>Created Date</th>
+                        <th>Status</th>
+                        <th class="text-end">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for member in staff %}
+                        <tr>
+                            <td>{{ loop.index }}</td>
+                            <td>
+                                <div class="fw-bold text-dark">{{ member.name }}</div>
+                                <div class="text-muted small">@{{ member.username }}</div>
+                            </td>
+                            <td>{{ member.contact_details }}</td>
+                            <td>{{ member.created_at.strftime('%Y-%m-%d') if member.created_at else 'N/A' }}</td>
+                            <td>
+                                <span class="badge {% if member.status == 'approved' %}badge-status-approved{% elif member.status == 'pending' %}badge-status-pending{% else %}badge-status-cancelled{% endif %} text-uppercase text-xs" style="font-size: 0.7rem;">
+                                    {{ member.status }}
+                                </span>
+                            </td>
+                            <td class="text-end">
+                                <div class="d-flex justify-content-end gap-1">
+                                    {% if member.status == 'pending' %}
+                                        <form action="{{ url_for('main.staff_action', staff_id=member.id, action='approve') }}" method="POST">
+                                            <button type="submit" class="btn btn-success btn-sm"><i class="fa-solid fa-check me-1"></i> Approve</button>
+                                        </form>
+                                        <form action="{{ url_for('main.staff_action', staff_id=member.id, action='blacklist') }}" method="POST">
+                                            <button type="submit" class="btn btn-outline-danger btn-sm"><i class="fa-solid fa-ban me-1"></i> Reject</button>
+                                        </form>
+                                    {% elif member.status == 'approved' %}
+                                        <form action="{{ url_for('main.staff_action', staff_id=member.id, action='blacklist') }}" method="POST" onsubmit="return confirm('Are you sure you want to blacklist this staff guide?');">
+                                            <button type="submit" class="btn btn-danger btn-sm"><i class="fa-solid fa-ban me-1"></i> Blacklist</button>
+                                        </form>
+                                    {% elif member.status == 'blacklisted' %}
+                                        <form action="{{ url_for('main.staff_action', staff_id=member.id, action='unblacklist') }}" method="POST">
+                                            <button type="submit" class="btn btn-success btn-sm"><i class="fa-solid fa-check-double me-1"></i> Remove Blacklist</button>
+                                        </form>
+                                    {% endif %}
+                                </div>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% else %}
+        <div class="text-center py-5 text-muted">
+            <i class="fa-solid fa-user-slash fs-1 mb-3 text-muted-50"></i>
+            <p class="mb-0 lead small">No staff guides found matching the filter.</p>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

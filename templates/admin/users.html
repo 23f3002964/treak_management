@@ -1,0 +1,90 @@
+{% extends "base.html" %}
+
+{% block title %}Manage Users - Admin - TrekOut{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h1 class="font-outfit text-dark mb-1">Manage Trekkers (Users)</h1>
+        <p class="text-muted small mb-0">Monitor registered participants, view profiles, and manage active status.</p>
+    </div>
+</div>
+
+<!-- Search and Filter -->
+<div class="card glass-panel border-0 p-4 mb-4">
+    <form action="{{ url_for('main.admin_users') }}" method="GET" class="row g-3">
+        <div class="col-md-7">
+            <label for="search" class="form-label small fw-semibold text-dark">Search by Name, Username, or ID</label>
+            <div class="input-group">
+                <span class="input-group-text bg-white text-muted"><i class="fa-solid fa-magnifying-glass"></i></span>
+                <input type="text" class="form-control" id="search" name="search" placeholder="Search trekkers..." value="{{ search }}">
+            </div>
+        </div>
+        <div class="col-md-4">
+            <label for="status" class="form-label small fw-semibold text-dark">Status</label>
+            <select class="form-select" id="status" name="status">
+                <option value="">All Statuses</option>
+                <option value="active" {% if status == 'active' %}selected{% endif %}>Active</option>
+                <option value="blacklisted" {% if status == 'blacklisted' %}selected{% endif %}>Blacklisted</option>
+            </select>
+        </div>
+        <div class="col-md-1 d-flex align-items-end">
+            <button type="submit" class="btn btn-primary w-100">Filter</button>
+        </div>
+    </form>
+</div>
+
+<!-- Users Table -->
+<div class="card glass-panel border-0 p-4">
+    {% if users %}
+        <div class="table-responsive">
+            <table class="table custom-table mb-0">
+                <thead>
+                    <tr>
+                        <th>S.No.</th>
+                        <th>Name & Username</th>
+                        <th>Contact Details</th>
+                        <th>Joined Date</th>
+                        <th>Status</th>
+                        <th class="text-end">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for user in users %}
+                        <tr>
+                            <td>{{ loop.index }}</td>
+                            <td>
+                                <div class="fw-bold text-dark">{{ user.name }}</div>
+                                <div class="text-muted small">@{{ user.username }}</div>
+                            </td>
+                            <td>{{ user.contact_details }}</td>
+                            <td>{{ user.created_at.strftime('%Y-%m-%d') if user.created_at else 'N/A' }}</td>
+                            <td>
+                                <span class="badge {% if user.status == 'active' %}badge-status-open{% else %}badge-status-cancelled{% endif %} text-uppercase text-xs" style="font-size: 0.7rem;">
+                                    {{ user.status }}
+                                </span>
+                            </td>
+                            <td class="text-end">
+                                {% if user.status == 'active' %}
+                                    <form action="{{ url_for('main.user_action', user_id=user.id, action='blacklist') }}" method="POST" onsubmit="return confirm('Are you sure you want to blacklist this trekker? This will revoke dashboard access immediately.');">
+                                        <button type="submit" class="btn btn-danger btn-sm"><i class="fa-solid fa-user-slash me-1"></i> Blacklist</button>
+                                    </form>
+                                {% else %}
+                                    <form action="{{ url_for('main.user_action', user_id=user.id, action='unblacklist') }}" method="POST">
+                                        <button type="submit" class="btn btn-success btn-sm"><i class="fa-solid fa-user-check me-1"></i> Remove Blacklist</button>
+                                    </form>
+                                {% endif %}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% else %}
+        <div class="text-center py-5 text-muted">
+            <i class="fa-solid fa-user-slash fs-1 mb-3 text-muted-50"></i>
+            <p class="mb-0 lead small">No trekkers found matching the search criteria.</p>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

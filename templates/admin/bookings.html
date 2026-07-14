@@ -1,0 +1,89 @@
+{% extends "base.html" %}
+
+{% block title %}Bookings Log - Admin - TrekOut{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h1 class="font-outfit text-dark mb-1">Global Bookings Log</h1>
+        <p class="text-muted small mb-0">View all bookings, reservation histories, dates, and reservation statuses across all trails.</p>
+    </div>
+</div>
+
+<!-- Search and Filter -->
+<div class="card glass-panel border-0 p-4 mb-4">
+    <form action="{{ url_for('main.admin_bookings') }}" method="GET" class="row g-3">
+        <div class="col-md-7">
+            <label for="search" class="form-label small fw-semibold text-dark">Search by Trek Name, Trekker Name, or Booking ID</label>
+            <div class="input-group">
+                <span class="input-group-text bg-white text-muted"><i class="fa-solid fa-magnifying-glass"></i></span>
+                <input type="text" class="form-control" id="search" name="search" placeholder="Search bookings..." value="{{ search }}">
+            </div>
+        </div>
+        <div class="col-md-4">
+            <label for="status" class="form-label small fw-semibold text-dark">Status</label>
+            <select class="form-select" id="status" name="status">
+                <option value="">All Statuses</option>
+                <option value="Booked" {% if status == 'Booked' %}selected{% endif %}>Booked</option>
+                <option value="Cancelled" {% if status == 'Cancelled' %}selected{% endif %}>Cancelled</option>
+                <option value="Completed" {% if status == 'Completed' %}selected{% endif %}>Completed</option>
+            </select>
+        </div>
+        <div class="col-md-1 d-flex align-items-end">
+            <button type="submit" class="btn btn-primary w-100">Filter</button>
+        </div>
+    </form>
+</div>
+
+<!-- Bookings Table -->
+<div class="card glass-panel border-0 p-4">
+    {% if bookings %}
+        <div class="table-responsive">
+            <table class="table custom-table mb-0">
+                <thead>
+                    <tr>
+                        <th>Booking ID</th>
+                        <th>Trekker Name</th>
+                        <th>Trek Name & Location</th>
+                        <th>Trek Date</th>
+                        <th>Booking Date</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for booking in bookings %}
+                        <tr>
+                            <td>#{{ booking.id }}</td>
+                            <td>
+                                <div class="fw-bold text-dark">{{ booking.trekker.name }}</div>
+                                <div class="text-muted small">@{{ booking.trekker.username }} • {{ booking.trekker.contact_details }}</div>
+                            </td>
+                            <td>
+                                <div class="fw-semibold text-dark">{{ booking.trek.name }}</div>
+                                <div class="text-muted small"><i class="fa-solid fa-location-dot me-1"></i>{{ booking.trek.location }}</div>
+                            </td>
+                            <td>
+                                <div class="small fw-semibold">{{ booking.trek.start_date.strftime('%Y-%m-%d') }}</div>
+                                <div class="text-muted small">{{ booking.trek.duration }} Days</div>
+                            </td>
+                            <td class="text-muted small">
+                                {{ booking.booking_date.strftime('%Y-%m-%d %H:%M') if booking.booking_date else 'N/A' }}
+                            </td>
+                            <td>
+                                <span class="badge {% if booking.status == 'Booked' %}badge-status-open{% elif booking.status == 'Cancelled' %}badge-status-cancelled{% else %}badge-status-completed{% endif %} text-uppercase text-xs" style="font-size: 0.7rem;">
+                                    {{ booking.status }}
+                                </span>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% else %}
+        <div class="text-center py-5 text-muted">
+            <i class="fa-solid fa-receipt fs-1 mb-3 text-muted-50"></i>
+            <p class="mb-0 lead small">No booking logs found matching the filters.</p>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

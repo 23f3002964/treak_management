@@ -1,0 +1,173 @@
+{% extends "base.html" %}
+
+{% block title %}Admin Dashboard - TrekOut{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-end mb-4">
+    <div>
+        <h1 class="font-outfit text-dark mb-1">Administrator Control Panel</h1>
+        <p class="text-muted small mb-0">Monitor statistics, manage routes, bookings, staff and user records.</p>
+    </div>
+    <span class="text-muted small"><i class="fa-solid fa-clock me-1"></i> Live Session</span>
+</div>
+
+<!-- Statistics Row -->
+<div class="row g-4 mb-5">
+    <div class="col-md-3">
+        <div class="card stats-card card-treks p-4 glass-panel border-0">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h6 class="text-muted text-uppercase text-xs mb-1" style="font-size: 0.75rem;">Total Treks</h6>
+                    <span class="h2 font-outfit fw-bold text-dark">{{ total_treks }}</span>
+                </div>
+                <div class="text-primary opacity-75">
+                    <i class="fa-solid fa-mountain fs-1"></i>
+                </div>
+            </div>
+            <a href="{{ url_for('main.admin_treks') }}" class="small text-decoration-none mt-3 text-primary d-inline-block">Manage Treks <i class="fa-solid fa-chevron-right ms-1"></i></a>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card stats-card card-users p-4 glass-panel border-0">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h6 class="text-muted text-uppercase text-xs mb-1" style="font-size: 0.75rem;">Total Trekkers</h6>
+                    <span class="h2 font-outfit fw-bold text-dark">{{ total_users }}</span>
+                </div>
+                <div class="text-success opacity-75">
+                    <i class="fa-solid fa-person-hiking fs-1"></i>
+                </div>
+            </div>
+            <a href="{{ url_for('main.admin_users') }}" class="small text-decoration-none mt-3 text-success d-inline-block">Manage Users <i class="fa-solid fa-chevron-right ms-1"></i></a>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card stats-card card-staff p-4 glass-panel border-0">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h6 class="text-muted text-uppercase text-xs mb-1" style="font-size: 0.75rem;">Total Guides</h6>
+                    <span class="h2 font-outfit fw-bold text-dark">{{ total_staff }}</span>
+                </div>
+                <div class="text-purple opacity-75" style="color: #9b59b6;">
+                    <i class="fa-solid fa-user-tie fs-1"></i>
+                </div>
+            </div>
+            <a href="{{ url_for('main.admin_staff') }}" class="small text-decoration-none mt-3 text-purple d-inline-block" style="color: #9b59b6;">Manage Staff <i class="fa-solid fa-chevron-right ms-1"></i></a>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card stats-card card-bookings p-4 glass-panel border-0">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h6 class="text-muted text-uppercase text-xs mb-1" style="font-size: 0.75rem;">Total Bookings</h6>
+                    <span class="h2 font-outfit fw-bold text-dark">{{ total_bookings }}</span>
+                </div>
+                <div class="text-warning opacity-75">
+                    <i class="fa-solid fa-receipt fs-1"></i>
+                </div>
+            </div>
+            <a href="{{ url_for('main.admin_bookings') }}" class="small text-decoration-none mt-3 text-warning d-inline-block">View Bookings <i class="fa-solid fa-chevron-right ms-1"></i></a>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Pending Staff Registrations -->
+    <div class="col-lg-6 mb-4">
+        <div class="card glass-panel border-0 p-4 h-100">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h3 class="h5 font-outfit text-dark mb-0"><i class="fa-solid fa-user-clock text-warning me-2"></i>Pending Staff Approvals</h3>
+                <span class="badge bg-warning text-dark">{{ pending_staff|length }} Pending</span>
+            </div>
+            
+            {% if pending_staff %}
+                <div class="table-responsive">
+                    <table class="table custom-table mb-0">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Contact</th>
+                                <th class="text-end">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for member in pending_staff %}
+                                <tr>
+                                    <td>
+                                        <div class="fw-semibold text-dark">{{ member.name }}</div>
+                                        <div class="text-muted small">@{{ member.username }}</div>
+                                    </td>
+                                    <td class="text-muted small">{{ member.contact_details }}</td>
+                                    <td class="text-end">
+                                        <div class="d-flex justify-content-end gap-1">
+                                            <form action="{{ url_for('main.staff_action', staff_id=member.id, action='approve') }}" method="POST">
+                                                <button type="submit" class="btn btn-success btn-xs py-1 px-2 small" style="font-size: 0.75rem;"><i class="fa-solid fa-check"></i> Approve</button>
+                                            </form>
+                                            <form action="{{ url_for('main.staff_action', staff_id=member.id, action='blacklist') }}" method="POST">
+                                                <button type="submit" class="btn btn-outline-danger btn-xs py-1 px-2 small" style="font-size: 0.75rem;"><i class="fa-solid fa-ban"></i> Deny</button>
+                                            </form>
+                                        </div>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <div class="text-center py-5 text-muted">
+                    <i class="fa-solid fa-users-check fs-2 mb-2 text-muted-50"></i>
+                    <p class="mb-0 small">No staff registration requests currently pending.</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Recent Bookings -->
+    <div class="col-lg-6 mb-4">
+        <div class="card glass-panel border-0 p-4 h-100">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h3 class="h5 font-outfit text-dark mb-0"><i class="fa-solid fa-receipt text-success me-2"></i>Recent System Bookings</h3>
+                <a href="{{ url_for('main.admin_bookings') }}" class="small text-decoration-none text-muted">View All</a>
+            </div>
+
+            {% if recent_bookings %}
+                <div class="table-responsive">
+                    <table class="table custom-table mb-0">
+                        <thead>
+                            <tr>
+                                <th>Trekker</th>
+                                <th>Trek</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for booking in recent_bookings %}
+                                <tr>
+                                    <td>
+                                        <div class="fw-semibold text-dark">{{ booking.trekker.name }}</div>
+                                        <div class="text-muted small">@{{ booking.trekker.username }}</div>
+                                    </td>
+                                    <td>
+                                        <div class="text-dark fw-semibold text-truncate" style="max-width: 150px;">{{ booking.trek.name }}</div>
+                                        <div class="text-muted small"><i class="fa-solid fa-calendar me-1"></i>{{ booking.booking_date.strftime('%Y-%m-%d') }}</div>
+                                    </td>
+                                    <td>
+                                        <span class="badge {% if booking.status == 'Booked' %}badge-status-open{% elif booking.status == 'Cancelled' %}badge-status-cancelled{% else %}badge-status-completed{% endif %} text-uppercase text-xs" style="font-size: 0.7rem;">
+                                            {{ booking.status }}
+                                        </span>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <div class="text-center py-5 text-muted">
+                    <i class="fa-solid fa-ban fs-2 mb-2 text-muted-50"></i>
+                    <p class="mb-0 small">No bookings have been logged in the system yet.</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
