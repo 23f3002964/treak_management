@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+
+{% block title %}Staff Dashboard - TrekOut{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-end mb-4">
+    <div>
+        <h1 class="font-outfit text-dark mb-1">Guide Dashboard</h1>
+        <p class="text-muted small mb-0">View your assigned treks, manage slots, modify status, and track registered participants.</p>
+    </div>
+    <span class="badge bg-success py-2 px-3 text-uppercase text-xs"><i class="fa-solid fa-circle-check me-1"></i> Approved Guide</span>
+</div>
+
+<!-- Assigned Treks -->
+<div class="mb-5">
+    <h2 class="h4 font-outfit text-dark mb-3">Your Assigned Treks</h2>
+    
+    {% if treks %}
+        <div class="row">
+            {% for trek in treks %}
+                <div class="col-md-6 mb-4">
+                    <div class="card glass-panel border-0 hover-lift h-100 overflow-hidden">
+                        <div class="card-header bg-dark text-white p-4 d-flex justify-content-between align-items-start" style="background: linear-gradient(135deg, var(--primary-color), var(--primary-hover));">
+                            <div>
+                                <h3 class="h5 font-outfit mb-1">{{ trek.name }}</h3>
+                                <span class="small text-light-50"><i class="fa-solid fa-location-dot me-1"></i>{{ trek.location }}</span>
+                            </div>
+                            <span class="badge {% if trek.status == 'Open' %}badge-status-open{% elif trek.status == 'Closed' %}badge-status-closed{% elif trek.status == 'Approved' %}badge-status-approved{% elif trek.status == 'Completed' %}badge-status-completed{% else %}badge-status-pending{% endif %} text-uppercase text-xs" style="font-size: 0.7rem;">
+                                {{ trek.status }}
+                            </span>
+                        </div>
+                        <div class="card-body p-4 d-flex flex-column">
+                            <p class="text-muted small flex-grow-1">{{ trek.description[:140] }}...</p>
+                            <hr class="text-muted my-3">
+                            
+                            <div class="row text-center mb-4 small">
+                                <div class="col-4 border-end">
+                                    <span class="d-block text-muted text-xs text-uppercase" style="font-size: 0.65rem;">Start Date</span>
+                                    <strong class="text-dark">{{ trek.start_date.strftime('%Y-%m-%d') }}</strong>
+                                </div>
+                                <div class="col-4 border-end">
+                                    <span class="d-block text-muted text-xs text-uppercase" style="font-size: 0.65rem;">Available Slots</span>
+                                    <strong class="text-warning">{{ trek.available_slots }} / {{ trek.total_slots }}</strong>
+                                </div>
+                                <div class="col-4">
+                                    <span class="d-block text-muted text-xs text-uppercase" style="font-size: 0.65rem;">Duration</span>
+                                    <strong class="text-dark">{{ trek.duration }} Days</strong>
+                                </div>
+                            </div>
+                            
+                            <div class="d-grid mt-auto">
+                                <a href="{{ url_for('main.staff_trek_detail', trek_id=trek.id) }}" class="btn btn-primary btn-sm"><i class="fa-solid fa-list-check me-1"></i> Manage Trek & Trekkers</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="alert alert-info text-center py-5 rounded-4 shadow-sm">
+            <i class="fa-solid fa-mountain-sun fs-2 text-primary mb-3"></i>
+            <h4 class="font-outfit fw-bold text-dark">No Treks Assigned</h4>
+            <p class="text-muted mb-0 small">The administrator has not assigned any active treks to you yet. Please check back later.</p>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

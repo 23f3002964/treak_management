@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+
+{% block title %}Account Pending Approval - TrekOut{% endblock %}
+
+{% block content %}
+<div class="container py-5 text-center" style="max-width: 600px;">
+    <div class="card glass-panel border-0 rounded-4 shadow-sm p-5 mt-5">
+        <div class="text-warning mb-4">
+            <i class="fa-solid fa-hourglass-half display-3"></i>
+        </div>
+        <h2 class="font-outfit fw-bold text-dark mb-2">Account Pending Approval</h2>
+        <p class="lead text-muted small mb-4">Thank you for registering as a Trek Staff member on TrekOut.</p>
+        <div class="alert alert-info rounded-3 text-start small mb-4">
+            <i class="fa-solid fa-circle-info me-2 text-primary"></i> 
+            Your registration request is currently in our queue. An administrator must review and approve your guide credentials before you can access the staff console.
+        </div>
+        <p class="text-muted small">Please contact system support if you believe this is in error.</p>
+        <div class="d-flex justify-content-center gap-3 mt-3">
+            <a href="{{ url_for('main.index') }}" class="btn btn-outline-primary"><i class="fa-solid fa-house me-1"></i> Home</a>
+            <a href="{{ url_for('main.logout') }}" class="btn btn-danger"><i class="fa-solid fa-right-from-bracket me-1"></i> Log Out</a>
+        </div>
+    </div>
+</div>
+{% endblock %}
